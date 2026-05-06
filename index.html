@@ -276,6 +276,37 @@ tbody td{padding:9px 12px;font-size:13px;}
 <div class="footer">Hill School Koimugul &nbsp;·&nbsp; Fee Management &nbsp;·&nbsp; <span>Since 2011</span></div>
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
+<script>
+// ── LOGIN (outside module so onclick works) ───────────────────────────────────
+const USERS = {
+  'admin':  'hill2011',
+  'bursar': 'bursar2026',
+  'dan':    'koimugul1'
+};
+
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const err  = document.getElementById('loginErr');
+  if (!user || !pass) { err.textContent = 'Please enter username and password'; return; }
+  if (USERS[user] && USERS[user] === pass) {
+    sessionStorage.setItem('hsk_auth', user);
+    document.getElementById('loginScreen').style.display = 'none';
+    err.textContent = '';
+  } else {
+    err.textContent = '❌ Wrong username or password';
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+// Auto-hide login if already authenticated this session
+if (sessionStorage.getItem('hsk_auth')) {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('loginScreen').style.display = 'none';
+  });
+}
+</script>
+
 <script type="module">
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -564,34 +595,7 @@ window.toast = function(msg, t) {
 };
 
 // ── LOGIN USERS ───────────────────────────────────────────────────────────────
-// Format: 'username': 'password'
-const USERS = {
-  'admin':  'hill2011',
-  'bursar': 'bursar2026',
-  'dan':    'koimugul1'
-};
-
-window.doLogin = function() {
-  const user = document.getElementById('loginUser').value.trim().toLowerCase();
-  const pass = document.getElementById('loginPass').value;
-  const err  = document.getElementById('loginErr');
-  if (!user || !pass) { err.textContent = 'Please enter username and password'; return; }
-  if (USERS[user] && USERS[user] === pass) {
-    sessionStorage.setItem('hsk_auth', user);
-    document.getElementById('loginScreen').style.display = 'none';
-    err.textContent = '';
-  } else {
-    err.textContent = '❌ Wrong username or password';
-    document.getElementById('loginPass').value = '';
-  }
-};
-
-// Check if already logged in this session
-if (sessionStorage.getItem('hsk_auth')) {
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('loginScreen').style.display = 'none';
-  });
-}
+// Handled in separate script above
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dateBadge').textContent = new Date().toLocaleDateString('en-KE',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
