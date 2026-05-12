@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+p<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -723,86 +723,66 @@ const PR = ref(db, 'payments');
 const SR = ref(db, 'students');
 const FR = ref(db, 'feeStructure');
 
+const firebaseConfig = {
+  apiKey:"AIzaSyAXUclpFkohsZHM4WElFcXumsbCQ72HKog",
+  authDomain:"hill-schools.firebaseapp.com",
+  databaseURL:"https://hill-schools-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"hill-schools",
+  storageBucket:"hill-schools.firebasestorage.app",
+  messagingSenderId:"129167886413",
+  appId:"1:129167886413:web:bb41928d8c2e7f1162f404",
+  measurementId:"G-M40QG8VX43"
+};
+
+try {
+  localStorage.removeItem('firebase:previous_websocket_failure');
+} catch (e) {}
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const PR = ref(db, 'payments');
+const SR = ref(db, 'students');
+const FR = ref(db, 'feeStructure');
+
+let firebaseReady = false;
+
 const firebaseTimeout = setTimeout(() => {
-  if (typeof payments === 'undefined' || payments.length === 0) {
+  if (!firebaseReady && (!window.allPayments || window.allPayments.length === 0)) {
     console.warn('Firebase timeout — using offline data');
-    payments = (window._SEED || []).map(p => ({ ...p, date: parseDate(p.date) }));
-    window.allPayments = payments;
+    const seed = window._SEED || [];
+    window.allPayments = seed.map(p => ({ ...p, date: parseDate(p.date) }));
     setSS('e', '⚠️ Offline Mode');
     window.renderDash && window.renderDash();
     window.toast && window.toast('Using offline data — check internet', 'r');
   }
 }, 8000);
-  }
-}, 8000);
-const SEED = window._SEED || [];
-const DEFAULT_FEES = {"Playgroup": {"T1": 5500, "T2": 4000, "T3": 3500}, "PP1": {"T1": 5500, "T2": 4000, "T3": 3500}, "PP2": {"T1": 5500, "T2": 4000, "T3": 3500}, "Grade 1": {"T1": 6500, "T2": 5000, "T3": 3500}, "Grade 2": {"T1": 6500, "T2": 5000, "T3": 3500}, "Grade 3": {"T1": 6500, "T2": 5000, "T3": 3500}, "Grade 4": {"T1": 7000, "T2": 5500, "T3": 4500}, "Grade 5": {"T1": 7000, "T2": 5500, "T3": 4500}, "Grade 6": {"T1": 7000, "T2": 5500, "T3": 4500}, "Grade 7": {"T1": 7000, "T2": 5500, "T3": 4500}};
 
-let payments = [];
-let students = [];
-let feeStructure = DEFAULT_FEES;
-let curPage = 0;
-let monthlyChart, methodChart, classChart;
-const PER_PAGE = 50;
-
-window.feeStructure = DEFAULT_FEES;
-
-function setSS(t,msg) {
-  const el=document.getElementById('syncStatus');
-  if(!el)return;
-  el.textContent=msg;
-  el.className='sdot '+(t==='o'?'so':t==='e'?'se':'si2');
-}
-
-function fmt(n) { return 'KES '+Number(n).toLocaleString('en-KE'); }
-
-function mb(m) {
-  const ml=(m||'').toLowerCase();
-  if(ml.includes('mpesa')||ml.includes('m-pesa')) return '<span class="ba bm">M-Pesa</span>';
-  if(ml==='cash') return '<span class="ba bc">Cash</span>';
-  if(ml.includes('account')||ml.includes('bank')) return '<span class="ba bb">Account</span>';
-  return '<span class="ba bo2">'+(m||'Other')+'</span>';
-}
-
-// ── LISTENERS ────────────────────────────────────────────────────────────────
-onValue(PR, snap => {
-  const raw = snap.val();
-  if(!raw) {
-    setSS('i','⚠️ Empty');
-    const ub=document.getElementById('uploadBanner');
-    if(ub)ub.style.display='block';
-    payments=[];
-  } else {
-    payments = Object.values(raw).map(p => ({...p, date:parseDate(p.date)}));
-    window.allPayments = payments;
-    setSS('o','✅ Live');
-    const ub=document.getElementById('uploadBanner');
-    if(ub)ub.style.display='none';
-  }
+onValue(PR, (snap) => {
+  const data = snap.val() || {};
+  const arr = [];
+  Object.keys(data).forEach(k => {
+    const p = data[k] || {};
+    arr.push({ ...p, date: parseDate(p.date) });
+  });
+  window.allPayments = arr;
+  firebaseReady = true;
+  clearTimeout(firebaseTimeout);
+  setSS('o', '✅ Live');
   window.renderDash && window.renderDash();
-  if(window.currentRole==='parent'&&window.currentChildName) renderParentView(window.currentChildName);
-}, err => {
-  setSS('e','❌ Error');
-  payments=SEED.map(p=>({...p,date:parseDate(p.date)}));
-  window.allPayments=payments;
-  window.renderDash && window.renderDash();
+}, (err) => {
+  console.error('Payments listener error:', err);
 });
 
-onValue(SR, snap => {
-  const raw=snap.val();
-  students=raw?Object.values(raw):[];
-  window.allStudents=students;
-  renderStudentsTab();
-  updateStudentDatalist();
-  updateDashArrears();
-  if(window.currentRole==='parent'&&window.currentChildName) renderParentView(window.currentChildName);
+onValue(SR, (snap) => {
+  window.allStudents = snap.val() || [];
+}, (err) => {
+  console.error('Students listener error:', err);
 });
 
-onValue(FR, snap => {
-  const raw=snap.val();
-  if(raw) { feeStructure=raw; window.feeStructure=raw; }
-  renderFeeGrid();
-  if(window.currentRole==='parent'&&window.currentChildName) renderParentView(window.currentChildName);
+onValue(FR, (snap) => {
+  window.feeStructure = snap.val() || {};
+}, (err) => {
+  console.error('Fee structure listener error:', err);
 });
 
 // ── UPLOAD ───────────────────────────────────────────────────────────────────
