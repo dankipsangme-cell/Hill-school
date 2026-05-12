@@ -713,21 +713,26 @@ const firebaseConfig = {
   measurementId:"G-M40QG8VX43"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
-const PR  = ref(db,'payments');
-const SR  = ref(db,'students');
-const FR  = ref(db,'feeStructure');
+try {
+  localStorage.removeItem('firebase:previous_websocket_failure');
+} catch (e) {}
 
-// Timeout fallback — if Firebase doesnt respond in 8 seconds use offline data
-setTimeout(() => {
-  if(payments.length === 0) {
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const PR = ref(db, 'payments');
+const SR = ref(db, 'students');
+const FR = ref(db, 'feeStructure');
+
+const firebaseTimeout = setTimeout(() => {
+  if (typeof payments === 'undefined' || payments.length === 0) {
     console.warn('Firebase timeout — using offline data');
-    payments = (window._SEED||[]).map(p=>({...p,date:parseDate(p.date)}));
+    payments = (window._SEED || []).map(p => ({ ...p, date: parseDate(p.date) }));
     window.allPayments = payments;
-    setSS('e','⚠️ Offline Mode');
+    setSS('e', '⚠️ Offline Mode');
     window.renderDash && window.renderDash();
-    window.toast && window.toast('Using offline data — check internet','r');
+    window.toast && window.toast('Using offline data — check internet', 'r');
+  }
+}, 8000);
   }
 }, 8000);
 const SEED = window._SEED || [];
