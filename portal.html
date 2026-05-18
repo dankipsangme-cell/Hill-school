@@ -1,0 +1,2304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerDesk — Hill School Koimugul</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   POWERDESK — HILL SCHOOL PORTAL
+   Clean, mobile-first, Firebase-powered
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --maroon: #8B1A2E;
+  --maroon-d: #6B1222;
+  --maroon-l: #B5253E;
+  --gold: #C8960C;
+  --gold-l: #E8B84B;
+  --blue: #6EB3D6;
+  --green: #1B8A4E;
+  --red: #C0392B;
+  --silver: #C8D4DC;
+  --bg: #F4F6FA;
+  --card: #ffffff;
+  --text: #1A1A2E;
+  --muted: #7A85A0;
+  --border: #E2E7F0;
+  --shadow: 0 2px 16px rgba(0,0,0,.07);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: linear-gradient(145deg, var(--maroon-d) 0%, var(--maroon) 50%, var(--maroon-l) 100%);
+}
+
+.login-card {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 32px 24px;
+  width: 100%; max-width: 380px;
+  box-shadow: 0 32px 64px rgba(0,0,0,.25);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-logo {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 12px;
+  font-size: 36px;
+  line-height: 72px;
+  background: var(--bg);
+}
+
+.login-school {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: var(--maroon-d);
+  margin-bottom: 2px;
+}
+
+.login-tagline {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.login-tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 3px; gap: 3px;
+  margin-bottom: 20px;
+}
+
+.ltab {
+  flex: 1; padding: 8px;
+  text-align: center;
+  border-radius: 8px;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer; color: var(--muted);
+  border: none; background: transparent;
+  font-family: 'Outfit', sans-serif;
+  transition: all .2s;
+}
+
+.ltab.active {
+  background: var(--card);
+  color: var(--maroon);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.lsec { display: none; }
+.lsec.active { display: block; }
+
+.hint-box {
+  background: #EFF6FF;
+  border-left: 3px solid var(--blue);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #1e40af;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.field-label {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted);
+  margin-bottom: 5px; display: block;
+}
+
+.field-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; color: var(--text);
+  outline: none; background: #FAFBFD;
+  margin-bottom: 12px;
+  transition: border-color .2s;
+}
+
+.field-input:focus {
+  border-color: var(--maroon);
+  background: var(--card);
+}
+
+.suggest-box {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  margin-top: -8px; margin-bottom: 12px;
+  max-height: 160px; overflow-y: auto;
+  display: none;
+  box-shadow: var(--shadow);
+}
+
+.suggest-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:hover { background: #FDF5F6; color: var(--maroon); }
+.suggest-hl { font-weight: 700; color: var(--maroon); }
+
+.login-btn {
+  width: 100%;
+  border: none; border-radius: 10px;
+  padding: 13px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; margin-bottom: 8px;
+  transition: all .2s;
+}
+
+.btn-maroon { background: var(--maroon); color: #fff; }
+.btn-maroon:hover { background: var(--maroon-d); }
+.btn-gold { background: var(--gold); color: #fff; }
+.btn-gold:hover { background: var(--gold-l); }
+
+.login-err {
+  color: var(--red);
+  font-size: 12px;
+  text-align: center;
+  min-height: 16px;
+  margin-bottom: 4px;
+}
+
+.login-hint {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, var(--maroon-d), var(--maroon), var(--maroon-l));
+  padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 20px rgba(139,26,46,.35);
+}
+
+.h-brand { display: flex; align-items: center; gap: 10px; }
+
+.h-logo {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(200,212,220,.4);
+  object-fit: cover;
+  font-size: 20px; line-height: 38px;
+  text-align: center; background: rgba(255,255,255,.1);
+}
+
+.h-name {
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; line-height: 1.1;
+}
+
+.h-role {
+  font-size: 9px; color: var(--silver);
+  letter-spacing: .1em; text-transform: uppercase;
+}
+
+.h-right { display: flex; align-items: center; gap: 6px; }
+
+.h-badge {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff; padding: 3px 9px;
+  border-radius: 20px; font-size: 10px;
+  max-width: 140px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+
+.h-status {
+  font-size: 9px; padding: 2px 8px;
+  border-radius: 10px; font-weight: 500;
+}
+
+.s-ok { color: #4ade80; background: rgba(74,222,128,.15); }
+.s-wait { color: #fbbf24; background: rgba(251,191,36,.15); }
+.s-err { color: #f87171; background: rgba(248,113,113,.15); }
+
+.h-logout {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff; padding: 4px 10px;
+  border-radius: 20px; font-size: 11px;
+  cursor: pointer; font-family: 'Outfit', sans-serif;
+}
+
+/* ── VIEWS ── */
+#parentView, #staffView { display: none; }
+
+/* ── PARENT VIEW ── */
+.parent-hero {
+  background: linear-gradient(135deg, var(--maroon-d), var(--maroon));
+  padding: 22px 18px; color: #fff;
+}
+
+.p-greet { font-size: 11px; color: rgba(200,212,220,.8); margin-bottom: 3px; }
+.p-name { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 3px; }
+.p-meta { font-size: 12px; color: rgba(200,212,220,.8); }
+
+.p-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px; padding: 14px;
+}
+
+.p-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px;
+  text-align: center;
+}
+
+.p-card.full { grid-column: 1 / -1; }
+.p-card-icon { font-size: 22px; margin-bottom: 5px; }
+.p-card-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 3px; }
+.p-card-val { font-family: 'Playfair Display', serif; font-size: 20px; }
+.p-card-val.green { color: var(--green); }
+.p-card-val.red { color: var(--red); }
+.p-card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.p-section {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; color: var(--maroon-d);
+  padding: 14px 14px 8px;
+}
+
+.p-payment-row {
+  background: var(--card);
+  margin: 0 14px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.p-pay-date { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.p-pay-method { font-size: 12px; font-weight: 500; }
+.p-pay-amount { font-size: 16px; font-weight: 700; color: var(--green); font-family: 'Playfair Display', serif; }
+.p-pay-term { font-size: 10px; color: var(--muted); text-align: right; }
+
+.cs-card {
+  background: var(--card);
+  margin: 0 14px 14px;
+  border-radius: 14px;
+  border: 2px dashed var(--border);
+  padding: 20px; text-align: center;
+}
+
+.cs-icon { font-size: 32px; margin-bottom: 8px; }
+.cs-title { font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.cs-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.cs-badge {
+  display: inline-block; margin-top: 10px;
+  background: #FEF3E2; color: #B8640A;
+  font-size: 10px; font-weight: 600;
+  padding: 3px 12px; border-radius: 20px;
+}
+
+/* ── STAFF TABS ── */
+.staff-tabs { background: var(--maroon-d); }
+.tab-row { display: grid; }
+.tab-row-1 { grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid rgba(255,255,255,.08); }
+.tab-row-2 { grid-template-columns: repeat(4, 1fr); }
+
+.tab {
+  padding: 8px 4px;
+  color: rgba(200,212,220,.5);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  transition: color .2s;
+}
+
+.tab:hover { color: #fff; }
+.tab.active { color: #fff; border-bottom-color: var(--blue); }
+.tab-label { font-size: 9px; display: block; margin-top: 1px; }
+
+/* ── MAIN CONTENT ── */
+main { padding: 14px; max-width: 960px; margin: 0 auto; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── STAT CARDS ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px; margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--card);
+  border-radius: 12px; padding: 14px;
+  border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.stat-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+}
+
+.stat-card.maroon::before { background: linear-gradient(90deg, var(--maroon-d), var(--maroon-l)); }
+.stat-card.blue::before { background: var(--blue); }
+.stat-card.green::before { background: var(--green); }
+.stat-card.red::before { background: var(--red); }
+
+.stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 5px; }
+.stat-value { font-family: 'Playfair Display', serif; font-size: 22px; line-height: 1; margin-bottom: 2px; }
+.stat-sub { font-size: 11px; color: var(--muted); }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; color: var(--maroon-d);
+  margin-bottom: 10px;
+}
+
+/* ── UPLOAD BANNER ── */
+.upload-banner {
+  background: linear-gradient(135deg, #1B4332, #166534);
+  border-radius: 12px; padding: 14px 16px;
+  margin-bottom: 14px; color: #fff;
+}
+
+.upload-btn {
+  background: #4ade80; color: #1B4332;
+  border: none; border-radius: 8px;
+  padding: 9px 18px; font-size: 13px;
+  font-weight: 700; cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  margin-top: 8px;
+}
+
+.upload-progress { background: rgba(255,255,255,.15); border-radius: 4px; height: 8px; margin-top: 8px; overflow: hidden; }
+.upload-fill { height: 8px; border-radius: 4px; background: #4ade80; width: 0%; transition: width .3s; }
+.upload-text { font-size: 11px; margin-top: 4px; color: rgba(255,255,255,.8); }
+
+/* ── TABLE ── */
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden; overflow-x: auto;
+  box-shadow: var(--shadow);
+}
+
+table { width: 100%; border-collapse: collapse; min-width: 380px; }
+thead th { background: var(--maroon-d); color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 10px 12px; text-align: left; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+tbody tr:hover { background: #FDF5F6; }
+tbody td { padding: 9px 12px; font-size: 12px; }
+
+.amount-cell { font-weight: 600; color: var(--maroon); }
+.red-cell { color: var(--red); font-weight: 700; }
+
+.no-data { text-align: center; padding: 36px 16px; color: var(--muted); }
+.no-data-icon { font-size: 32px; margin-bottom: 8px; }
+
+/* ── PAGINATION ── */
+.pag-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px;
+}
+
+.pag-info { font-size: 11px; color: var(--muted); }
+.pag-btn {
+  background: var(--maroon); color: #fff;
+  border: none; border-radius: 7px;
+  padding: 5px 12px; font-size: 11px;
+  cursor: pointer; font-family: 'Outfit', sans-serif;
+}
+.pag-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── SEARCH ── */
+.search-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex; gap: 10px; align-items: center;
+  box-shadow: var(--shadow);
+}
+
+.search-input {
+  border: none; outline: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; color: var(--text);
+  flex: 1; background: transparent;
+}
+
+.search-input::placeholder { color: #BBC3D8; }
+.search-clear {
+  background: var(--bg); border: none;
+  border-radius: 7px; padding: 4px 10px;
+  font-size: 12px; color: var(--muted);
+  cursor: pointer; font-family: 'Outfit', sans-serif;
+}
+
+.result-card {
+  background: linear-gradient(135deg, var(--maroon-d), var(--maroon));
+  border-radius: 12px; padding: 16px 18px;
+  color: #fff; margin-bottom: 12px;
+  display: none; align-items: center;
+  justify-content: space-between; gap: 12px;
+  flex-wrap: wrap;
+}
+
+.result-card.visible { display: flex; }
+.rc-name { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 2px; }
+.rc-meta { font-size: 11px; color: var(--silver); }
+.rc-total { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--blue); }
+
+/* ── FORMS ── */
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 14px;
+}
+
+@media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } }
+
+.form-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; display: block; }
+
+.form-input, .form-select {
+  border: 1.5px solid var(--border);
+  border-radius: 9px; padding: 9px 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; color: var(--text);
+  outline: none; background: var(--bg);
+  width: 100%; transition: border-color .2s;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--maroon);
+  background: var(--card);
+}
+
+.action-btn {
+  background: var(--maroon); color: #fff;
+  border: none; border-radius: 9px;
+  padding: 11px 22px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; display: inline-flex;
+  align-items: center; gap: 6px;
+  transition: background .2s;
+}
+
+.action-btn:hover { background: var(--maroon-d); }
+.action-btn:disabled { background: #aaa; cursor: not-allowed; }
+.action-btn.green { background: var(--green); }
+.action-btn.green:hover { background: #166534; }
+
+/* ── FEE STRUCTURE ── */
+.fee-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.fee-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.fee-card h4 {
+  font-size: 13px; font-weight: 600;
+  color: var(--maroon-d); margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fee-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.fee-row label { font-size: 11px; color: var(--muted); width: 22px; flex-shrink: 0; }
+
+.fee-input {
+  border: 1.5px solid var(--border);
+  border-radius: 7px; padding: 7px 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; color: var(--text);
+  outline: none; background: var(--bg); flex: 1;
+}
+
+.fee-input:focus { border-color: var(--maroon); background: var(--card); }
+
+.fee-save-btn {
+  background: var(--maroon); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; margin-top: 8px; width: 100%;
+}
+
+/* ── ANALYTICS ── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 16px;
+}
+
+@media (max-width: 520px) { .analytics-grid { grid-template-columns: 1fr; } }
+
+.analytics-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.analytics-card.full { grid-column: 1 / -1; }
+
+.analytics-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; color: var(--maroon-d);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.progress-wrap { margin-bottom: 10px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.progress-track { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 5px; transition: width .6s ease; }
+
+/* ── ARREARS ── */
+.term-select {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 6px 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; color: var(--text);
+  outline: none; cursor: pointer;
+}
+
+/* ── SUMMARY ── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 480px) { .summary-grid { grid-template-columns: 1fr; } }
+
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.summary-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; color: var(--maroon-d);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #F5F0F1; font-size: 12px; }
+.summary-row:last-child { border-bottom: none; }
+.summary-label { color: var(--muted); }
+.summary-value { font-weight: 600; }
+.method-bar { height: 5px; border-radius: 3px; background: var(--border); margin-top: 3px; overflow: hidden; }
+.method-fill { height: 100%; border-radius: 3px; }
+
+/* ── PROMOTE ── */
+.promo-info {
+  background: #EFF6FF;
+  border: 1px solid #B0C4E8;
+  border-radius: 9px; padding: 11px 14px;
+  font-size: 12px; color: #2D4FA0;
+  margin-bottom: 14px; line-height: 1.6;
+}
+
+/* ── BADGES ── */
+.ba { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+.bm { background: #E3F6EC; color: #1B7A44; }
+.bc { background: #FEF3E2; color: #B8640A; }
+.bb { background: #EAF0FB; color: #2D4FA0; }
+.bo { background: #F3E8FB; color: #7B2DAB; }
+
+/* ── ADMIN ── */
+.admin-section {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-section h4 {
+  font-size: 13px; font-weight: 600;
+  color: var(--maroon-d); margin-bottom: 10px;
+}
+
+.col-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px; margin-bottom: 10px;
+}
+
+textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 9px; padding: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px; background: var(--card);
+  color: var(--text); outline: none;
+  resize: vertical;
+}
+
+textarea:focus { border-color: var(--maroon); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 18px; right: 18px;
+  color: #fff; padding: 11px 16px;
+  border-radius: 10px; font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 7px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  transform: translateY(80px); opacity: 0;
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  z-index: 9998;
+}
+
+.toast.on { transform: translateY(0); opacity: 1; }
+
+/* ── FOOTER ── */
+.portal-footer {
+  text-align: center; padding: 16px;
+  font-size: 11px; color: var(--muted);
+}
+
+.portal-footer b { color: var(--maroon); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-logo" id="loginLogo">🏫</div>
+      <div class="login-school">Hill School Koimugul</div>
+      <div class="login-tagline">PowerDesk Portal · Est. 2011</div>
+    </div>
+
+    <div class="login-tabs">
+      <button class="ltab active" onclick="switchLoginTab('parent', this)">👨‍👩‍👧 Parent</button>
+      <button class="ltab" onclick="switchLoginTab('staff', this)">👔 Staff</button>
+    </div>
+
+    <!-- PARENT LOGIN -->
+    <div class="lsec active" id="lsec-parent">
+      <div class="hint-box">
+        👋 Enter your <strong>child's full name</strong> exactly as registered at school to view their records.
+      </div>
+      <label class="field-label">Child's Full Name</label>
+      <input class="field-input" id="parentNameInput" type="text"
+        placeholder="e.g. Faith Wanjiku"
+        oninput="showSuggestions()"
+        onkeydown="if(event.key==='Enter') parentLogin()"
+        autocomplete="off">
+      <div class="suggest-box" id="suggestBox"></div>
+      <div class="login-err" id="parentErr"></div>
+      <button class="login-btn btn-gold" onclick="parentLogin()">🔍 View My Child's Records</button>
+      <div class="login-hint">Name must match exactly as registered at school</div>
+    </div>
+
+    <!-- STAFF LOGIN -->
+    <div class="lsec" id="lsec-staff">
+      <label class="field-label">Username</label>
+      <input class="field-input" id="staffUsername" type="text" placeholder="Enter username">
+      <label class="field-label">Password</label>
+      <input class="field-input" id="staffPassword" type="password"
+        placeholder="Enter password"
+        onkeydown="if(event.key==='Enter') staffLogin()">
+      <div class="login-err" id="staffErr"></div>
+      <button class="login-btn btn-maroon" onclick="staffLogin()">🔐 Staff Login</button>
+      <div class="login-hint">For bursars and administrators only</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════ -->
+<header id="mainHeader" style="display:none">
+  <div class="h-brand">
+    <div class="h-logo" id="headerLogo">🏫</div>
+    <div>
+      <div class="h-name">Hill School Koimugul</div>
+      <div class="h-role" id="headerRole">Portal</div>
+    </div>
+  </div>
+  <div class="h-right">
+    <div class="h-badge" id="headerUser"></div>
+    <div class="h-status s-wait" id="hstatus">⏳</div>
+    <button class="h-logout" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     PARENT VIEW
+════════════════════════════════════════════════ -->
+<div id="parentView">
+  <div class="parent-hero">
+    <div class="p-greet">Welcome back 👋</div>
+    <div class="p-name" id="parentChildName">—</div>
+    <div class="p-meta" id="parentChildMeta">—</div>
+  </div>
+
+  <div class="p-cards">
+    <div class="p-card">
+      <div class="p-card-icon">💰</div>
+      <div class="p-card-label">Total Paid</div>
+      <div class="p-card-val green" id="pTotalPaid">—</div>
+      <div class="p-card-sub">All time</div>
+    </div>
+    <div class="p-card">
+      <div class="p-card-icon">📝</div>
+      <div class="p-card-label">Payments</div>
+      <div class="p-card-val" id="pPayCount">—</div>
+      <div class="p-card-sub">Transactions</div>
+    </div>
+    <div class="p-card full">
+      <div class="p-card-icon">⚖️</div>
+      <div class="p-card-label" id="pBalLabel">Term 1 Balance</div>
+      <div class="p-card-val" id="pBalance">—</div>
+      <div class="p-card-sub" id="pBalSub">—</div>
+    </div>
+  </div>
+
+  <div class="p-section">Payment History</div>
+  <div id="parentPayments"></div>
+
+  <div class="p-section">Report Cards</div>
+  <div class="cs-card">
+    <div class="cs-icon">📋</div>
+    <div class="cs-title">CBC Report Cards</div>
+    <div class="cs-desc">Your child's CBC report cards will appear here once results are entered by the teacher. You will receive an SMS notification when they are ready.</div>
+    <span class="cs-badge">Coming Soon</span>
+  </div>
+
+  <div class="p-section">School Updates</div>
+  <div class="cs-card" style="margin-bottom:50px">
+    <div class="cs-icon">📰</div>
+    <div class="cs-title">School Newsletter</div>
+    <div class="cs-desc">School announcements and news will appear here. Currently sent directly to your phone via SMS.</div>
+    <span class="cs-badge">Coming Soon</span>
+  </div>
+
+  <div class="portal-footer">
+    Hill School Koimugul &nbsp;·&nbsp; <b>Since 2011</b> &nbsp;·&nbsp; "Perform to Your Best"
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAFF VIEW
+════════════════════════════════════════════════ -->
+<div id="staffView">
+  <div class="staff-tabs">
+    <div class="tab-row tab-row-1">
+      <div class="tab active" onclick="switchTab('dashboard', this)">📊<span class="tab-label">Dashboard</span></div>
+      <div class="tab" onclick="switchTab('search', this)">🔍<span class="tab-label">Search</span></div>
+      <div class="tab" onclick="switchTab('analytics', this)">📈<span class="tab-label">Analytics</span></div>
+      <div class="tab" onclick="switchTab('arrears', this)">⚠️<span class="tab-label">Arrears</span></div>
+      <div class="tab" onclick="switchTab('students', this)">👨‍🎓<span class="tab-label">Students</span></div>
+    </div>
+    <div class="tab-row tab-row-2">
+      <div class="tab" onclick="switchTab('add', this)">➕<span class="tab-label">Add</span></div>
+      <div class="tab" onclick="switchTab('fees', this)">⚙️<span class="tab-label">Fees</span></div>
+      <div class="tab" onclick="switchTab('promote', this)">🎓<span class="tab-label">Promote</span></div>
+      <div class="tab" onclick="switchTab('summary', this)">📋<span class="tab-label">Summary</span></div>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="upload-banner" id="uploadBanner" style="display:none">
+        <p style="font-size:13px"><strong>📤 Firebase connected but empty.</strong> Upload your records to get started.</p>
+        <button class="upload-btn" id="uploadBtn" onclick="doUpload()">📤 Upload All Records</button>
+        <div class="upload-progress"><div class="upload-fill" id="uploadFill"></div></div>
+        <div class="upload-text" id="uploadText"></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card maroon">
+          <div class="stat-label">Total Collected</div>
+          <div class="stat-value" id="s1">—</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Students</div>
+          <div class="stat-value" id="s2">—</div>
+          <div class="stat-sub">In register</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Transactions</div>
+          <div class="stat-value" id="s3">—</div>
+          <div class="stat-sub">Payments</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Arrears T1</div>
+          <div class="stat-value" id="s4" style="color:var(--red)">—</div>
+          <div class="stat-sub">Outstanding</div>
+        </div>
+      </div>
+
+      <div class="section-title">Recent Payments — sorted by payment date</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Student Name</th><th>Class</th><th>Amount</th><th>Method</th></tr></thead>
+          <tbody id="dashTable">
+            <tr><td colspan="5"><div class="no-data"><div class="no-data-icon">⏳</div><p>Connecting to Firebase...</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pag-bar">
+        <div class="pag-info" id="pagInfo"></div>
+        <div style="display:flex;gap:6px">
+          <button class="pag-btn" id="prevBtn" onclick="changePage(-1)" disabled>◀ Prev</button>
+          <button class="pag-btn" id="nextBtn" onclick="changePage(1)" disabled>Next ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="page" id="page-search">
+      <div class="search-bar">
+        <span style="font-size:17px;color:var(--muted)">🔍</span>
+        <input class="search-input" id="searchInput" type="text"
+          placeholder="Type student name to search..." oninput="doSearch()">
+        <button class="search-clear" onclick="clearSearch()">Clear</button>
+      </div>
+      <div class="result-card" id="resultCard">
+        <div>
+          <div class="rc-name" id="rcName"></div>
+          <div class="rc-meta" id="rcMeta"></div>
+          <div class="rc-meta" id="rcPhone" style="margin-top:3px"></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--silver);text-transform:uppercase;letter-spacing:.07em">Total Paid</div>
+          <div class="rc-total" id="rcTotal"></div>
+          <div id="rcBalance" style="font-size:12px;margin-top:2px"></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:7px" id="searchCount"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Name</th><th>Amount</th><th>Method</th><th>Term</th></tr></thead>
+          <tbody id="searchTable">
+            <tr><td colspan="5"><div class="no-data"><div class="no-data-icon">🔍</div><p>Type a student name above</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div class="section-title" style="margin-bottom:0">📈 Fee Collection Analytics</div>
+        <select class="term-select" id="analyticsTermSelect" onchange="renderAnalytics()">
+          <option value="Term 1">Term 1</option>
+          <option value="Term 2">Term 2</option>
+          <option value="Term 3">Term 3</option>
+          <option value="all">All Terms</option>
+        </select>
+      </div>
+      <div class="analytics-grid">
+        <div class="analytics-card full">
+          <h3>🎯 Term Collection Progress</h3>
+          <div id="termProgress"></div>
+        </div>
+        <div class="analytics-card full">
+          <h3>📅 Monthly Collection Breakdown</h3>
+          <div id="monthlyBreakdown"></div>
+        </div>
+        <div class="analytics-card">
+          <h3>💳 By Payment Method</h3>
+          <div id="methodBreakdown"></div>
+        </div>
+        <div class="analytics-card">
+          <h3>🏫 By Class Group</h3>
+          <div id="classBreakdown"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARREARS -->
+    <div class="page" id="page-arrears">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <div class="section-title" style="margin-bottom:0">⚠️ Fee Arrears</div>
+        <select class="term-select" id="arrTermSel" onchange="renderArrears()">
+          <option>Term 1</option><option>Term 2</option><option>Term 3</option>
+        </select>
+        <select class="term-select" id="arrClassSel" onchange="renderArrears()">
+          <option value="all">All Classes</option>
+          <option>Playgroup</option><option>PP1</option><option>PP2</option>
+          <option>Grade 1</option><option>Grade 2</option><option>Grade 3</option>
+          <option>Grade 4</option><option>Grade 5</option><option>Grade 6</option><option>Grade 7</option>
+        </select>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card maroon"><div class="stat-label">Expected</div><div class="stat-value" id="arrExp">—</div></div>
+        <div class="stat-card green"><div class="stat-label">Collected</div><div class="stat-value" id="arrCol">—</div></div>
+        <div class="stat-card red"><div class="stat-label">Arrears</div><div class="stat-value" id="arrTot" style="color:var(--red)">—</div></div>
+        <div class="stat-card blue"><div class="stat-label">Cleared</div><div class="stat-value" id="arrClr">—</div></div>
+      </div>
+      <div class="analytics-card" style="margin-bottom:14px">
+        <h3>📊 Collection Progress</h3>
+        <div id="arrProgress"></div>
+      </div>
+      <div class="section-title">Students with Arrears</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student Name</th><th>Class</th><th>Parent Phone</th><th>Expected</th><th>Paid</th><th>Arrears</th></tr></thead>
+          <tbody id="arrearsTable"></tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;padding:0 2px">
+        ℹ️ Import student register from Admin section for accurate arrears calculations.
+      </p>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="page" id="page-students">
+      <div class="stat-grid" style="margin-bottom:14px">
+        <div class="stat-card blue"><div class="stat-label">Total Students</div><div class="stat-value" id="stuTotal">—</div></div>
+        <div class="stat-card maroon"><div class="stat-label">Classes</div><div class="stat-value" id="stuClasses">—</div></div>
+      </div>
+      <div class="search-bar" style="margin-bottom:14px">
+        <span style="font-size:17px;color:var(--muted)">🔍</span>
+        <input class="search-input" id="stuSearch" type="text"
+          placeholder="Search by name or class..." oninput="renderStudents()">
+        <button class="search-clear" onclick="document.getElementById('stuSearch').value='';renderStudents()">Clear</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Parent Phone</th><th>Total Paid</th></tr></thead>
+          <tbody id="stuTable">
+            <tr><td colspan="5"><div class="no-data"><div class="no-data-icon">👨‍🎓</div><p>No students yet. Import from Admin section.</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD PAYMENT -->
+    <div class="page" id="page-add">
+      <div class="form-card">
+        <div class="section-title" style="margin-bottom:4px">Record New Payment</div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:14px">Saves permanently to Firebase — accessible from any device instantly</p>
+        <div class="form-grid">
+          <div>
+            <label class="form-label">Date</label>
+            <input class="form-input" type="date" id="fDate">
+          </div>
+          <div>
+            <label class="form-label">Student Name</label>
+            <input class="form-input" type="text" id="fName" placeholder="Full name"
+              list="studentDatalist" oninput="autoFillClass()">
+            <datalist id="studentDatalist"></datalist>
+          </div>
+          <div>
+            <label class="form-label">Amount (KES)</label>
+            <input class="form-input" type="number" id="fAmount" placeholder="e.g. 5000">
+          </div>
+          <div>
+            <label class="form-label">Method</label>
+            <select class="form-select" id="fMethod">
+              <option value="Account">Account (Bank)</option>
+              <option value="M-Pesa">M-Pesa</option>
+              <option value="Cash">Cash</option>
+              <option value="Goods(Maize)">Goods (Maize)</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Class</label>
+            <select class="form-select" id="fClass">
+              <option value="">Select class</option>
+              <option>Playgroup</option><option>PP1</option><option>PP2</option>
+              <option>Grade 1</option><option>Grade 2</option><option>Grade 3</option>
+              <option>Grade 4</option><option>Grade 5</option><option>Grade 6</option><option>Grade 7</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Term</label>
+            <select class="form-select" id="fTerm">
+              <option>Term 1</option><option>Term 2</option><option>Term 3</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Received By</label>
+            <input class="form-input" type="text" id="fReceived" value="Bursar">
+          </div>
+        </div>
+        <button class="action-btn" id="saveBtn" onclick="savePayment()">✅ Save to Firebase</button>
+      </div>
+    </div>
+
+    <!-- FEE STRUCTURE -->
+    <div class="page" id="page-fees">
+      <div class="section-title">⚙️ Fee Structure</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
+        Edit fees per class group. Changes save instantly to Firebase and reflect across all devices.
+      </p>
+      <div class="fee-grid" id="feeGrid"></div>
+    </div>
+
+    <!-- PROMOTE -->
+    <div class="page" id="page-promote">
+      <div class="section-title">🎓 Annual Student Promotion</div>
+      <div class="promo-info">
+        ℹ️ <strong>Promotion path:</strong> Playgroup → PP1 → PP2 → Grade 1 → Grade 2 → Grade 3 → Grade 4 → Grade 5 → Grade 6 → Grade 7 → Alumni 🎓
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
+        Preview all students and their new classes. Untick any student who is repeating before confirming.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="action-btn" onclick="previewPromo()">👁️ Preview Promotions</button>
+        <button class="action-btn green" id="confirmPromoBtn" onclick="confirmPromo()" style="display:none">✅ Confirm & Promote</button>
+        <button id="cancelPromoBtn" onclick="cancelPromo()" style="display:none;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:10px 18px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;">Cancel</button>
+      </div>
+      <div id="promoStats" style="display:none" class="stat-grid">
+        <div class="stat-card green"><div class="stat-label">Being Promoted</div><div class="stat-value" id="promoCount">—</div></div>
+        <div class="stat-card blue"><div class="stat-label">Repeating</div><div class="stat-value" id="repeatCount">0</div></div>
+        <div class="stat-card maroon"><div class="stat-label">Alumni</div><div class="stat-value" id="alumniCount">0</div></div>
+      </div>
+      <div id="promoTableWrap" style="display:none">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>✓</th><th>Student Name</th><th>Current Class</th><th>→ New Class</th></tr></thead>
+            <tbody id="promoTable"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="promoResult" style="display:none;margin-top:14px"></div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="page" id="page-summary">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h3>💳 Payment Methods</h3>
+          <div id="summaryMethods"></div>
+        </div>
+        <div class="summary-card">
+          <h3>🏆 Top 10 Payers</h3>
+          <div id="summaryTopPayers"></div>
+        </div>
+        <div class="summary-card">
+          <h3>📅 By Month</h3>
+          <div id="summaryMonthly"></div>
+        </div>
+        <div class="summary-card">
+          <h3>📊 Quick Stats</h3>
+          <div id="summaryStats"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ADMIN IMPORT (accessed via button below) -->
+  <div style="text-align:center;padding:8px">
+    <button onclick="showAdmin()" style="background:transparent;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:10px;cursor:pointer;padding:5px 16px;font-family:'Outfit',sans-serif;">
+      🔒 Admin Import
+    </button>
+  </div>
+
+  <div id="adminPage" style="display:none;padding:14px;max-width:960px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="section-title" style="margin-bottom:0">🔒 Admin Data Import</div>
+      <button onclick="closeAdmin()" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;">← Back</button>
+    </div>
+
+    <div style="background:#E8F7EE;border:1px solid #86C999;border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;color:#1B8A4E;margin-bottom:6px">🔤 Normalize All Names to Title Case</div>
+      <p style="font-size:12px;color:#166534;margin-bottom:10px">Fixes inconsistent name casing across all records. Run once after importing data.</p>
+      <button class="action-btn green" id="normalizeBtn" onclick="normalizeNames()">🔤 Run Cleanup</button>
+      <span id="normalizeMsg" style="font-size:12px;margin-left:10px"></span>
+    </div>
+
+    <div style="background:#FEF3E2;border:1px solid #F5C06A;border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;color:#7A4A0A">
+      ⚠️ Import section — use for initial data loading only. Use ➕ Add for regular entries.
+    </div>
+
+    <div class="admin-section">
+      <h4>💰 Paste Fee Payments from Google Sheets</h4>
+      <div class="col-grid">
+        <select class="form-select" id="c0"><option value="DATE">DATE</option><option value="ADM">ADM NO</option><option value="NAME">NAME</option><option value="AMOUNT">AMOUNT</option><option value="METHOD">METHOD</option><option value="RECEIVED">RECEIVED</option><option value="SKIP">SKIP</option></select>
+        <select class="form-select" id="c1"><option value="ADM">ADM NO</option><option value="DATE">DATE</option><option value="NAME">NAME</option><option value="AMOUNT">AMOUNT</option><option value="METHOD">METHOD</option><option value="RECEIVED">RECEIVED</option><option value="SKIP">SKIP</option></select>
+        <select class="form-select" id="c2"><option value="NAME">NAME</option><option value="DATE">DATE</option><option value="ADM">ADM</option><option value="AMOUNT">AMOUNT</option><option value="METHOD">METHOD</option><option value="RECEIVED">RECEIVED</option><option value="SKIP">SKIP</option></select>
+        <select class="form-select" id="c3"><option value="AMOUNT">AMOUNT</option><option value="DATE">DATE</option><option value="NAME">NAME</option><option value="METHOD">METHOD</option><option value="RECEIVED">RECEIVED</option><option value="SKIP">SKIP</option></select>
+        <select class="form-select" id="c4"><option value="METHOD">METHOD</option><option value="AMOUNT">AMOUNT</option><option value="RECEIVED">RECEIVED</option><option value="SKIP">SKIP</option></select>
+        <select class="form-select" id="c5"><option value="RECEIVED">RECEIVED</option><option value="METHOD">METHOD</option><option value="AMOUNT">AMOUNT</option><option value="SKIP">SKIP</option></select>
+      </div>
+      <textarea id="pastePayments" rows="5" placeholder="Paste fee payment data here..."></textarea>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+        <button class="action-btn" id="importPayBtn" onclick="importPayments()">⬆️ Import Payments</button>
+        <button onclick="document.getElementById('pastePayments').value=''" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;">Clear</button>
+        <span id="importPayMsg" style="font-size:12px"></span>
+      </div>
+    </div>
+
+    <div class="admin-section" style="margin-bottom:30px">
+      <h4>👨‍🎓 Paste Student Register</h4>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Format: Name, Class, Parent Phone — one student per row</p>
+      <div class="col-grid" style="grid-template-columns:repeat(3,1fr)">
+        <select class="form-select" id="sc0"><option value="NAME">NAME</option><option value="CLASS">CLASS</option><option value="PHONE">PHONE</option><option value="SKIP">SKIP</option></select>
+        <select class="form-select" id="sc1"><option value="CLASS">CLASS</option><option value="NAME">NAME</option><option value="PHONE">PHONE</option><option value="SKIP">SKIP</option></select>
+        <select class="form-select" id="sc2"><option value="PHONE">PHONE</option><option value="NAME">NAME</option><option value="CLASS">CLASS</option><option value="SKIP">SKIP</option></select>
+      </div>
+      <textarea id="pasteStudents" rows="5" placeholder="Paste student register here (Name, Class, Phone)..."></textarea>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+        <button class="action-btn green" id="importStuBtn" onclick="importStudents()">⬆️ Import Students</button>
+        <button onclick="document.getElementById('pasteStudents').value=''" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;">Clear</button>
+        <span id="importStuMsg" style="font-size:12px"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="portal-footer">
+    PowerDesk &nbsp;·&nbsp; Hill School Koimugul &nbsp;·&nbsp; <b>Since 2011</b> &nbsp;·&nbsp; "Perform to Your Best"
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════ -->
+<script>
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 1: FIREBASE CONFIGURATION
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+var FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyAXUclpFkohsZHM4WElFcXumsbCQ72HKog",
+  authDomain:        "hill-schools.firebaseapp.com",
+  databaseURL:       "https://hill-schools-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "hill-schools",
+  storageBucket:     "hill-schools.firebasestorage.app",
+  messagingSenderId: "129167886413",
+  appId:             "1:129167886413:web:bb41928d8c2e7f1162f404"
+};
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 2: APP STATE
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+var pays = [];
+var stus = [];
+var fees = {
+  "Playgroup":{"T1":5500,"T2":4000,"T3":3500},
+  "PP1":{"T1":5500,"T2":4000,"T3":3500},
+  "PP2":{"T1":5500,"T2":4000,"T3":3500},
+  "Grade 1":{"T1":6500,"T2":5000,"T3":3500},
+  "Grade 2":{"T1":6500,"T2":5000,"T3":3500},
+  "Grade 3":{"T1":6500,"T2":5000,"T3":3500},
+  "Grade 4":{"T1":7000,"T2":5500,"T3":4500},
+  "Grade 5":{"T1":7000,"T2":5500,"T3":4500},
+  "Grade 6":{"T1":7000,"T2":5500,"T3":4500},
+  "Grade 7":{"T1":7000,"T2":5500,"T3":4500}
+};
+
+var STAFF_USERS = { admin:'hill2011', bursar:'bursar2026', dan:'koimugul1' };
+var PROMO_MAP   = {
+  "Playgroup":"PP1","PP1":"PP2","PP2":"Grade 1",
+  "Grade 1":"Grade 2","Grade 2":"Grade 3","Grade 3":"Grade 4",
+  "Grade 4":"Grade 5","Grade 5":"Grade 6","Grade 6":"Grade 7","Grade 7":"Alumni"
+};
+
+var role     = null;
+var child    = null;
+var curPage  = 0;
+var PER_PAGE = 50;
+var promoData = [];
+var db, PR, SR, FR;
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 3: HELPERS
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function g(id)  { return document.getElementById(id); }
+function fmt(n) { return 'KES ' + Number(n).toLocaleString('en-KE'); }
+
+function ttl(s) {
+  if (!s) return '';
+  return s.toLowerCase().replace(/\b\w/g, function(c){ return c.toUpperCase(); }).trim();
+}
+
+function parseDate(r) {
+  if (!r || r === 'NaT' || r === 'nan') return '';
+  r = String(r).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(r)) return r.substring(0, 10);
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r)) {
+    var p = r.split('/');
+    return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
+  }
+  var d = new Date(r);
+  return isNaN(d) ? '' : d.toISOString().split('T')[0];
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  try {
+    var iso = parseDate(d);
+    if (!iso) return d;
+    var p = iso.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  } catch(e) { return d; }
+}
+
+function badge(m) {
+  var ml = (m||'').toLowerCase();
+  if (ml.includes('mpesa')||ml.includes('m-pesa')) return '<span class="ba bm">M-Pesa</span>';
+  if (ml === 'cash') return '<span class="ba bc">Cash</span>';
+  if (ml.includes('account')||ml.includes('bank')) return '<span class="ba bb">Account</span>';
+  return '<span class="ba bo">' + (m||'Other') + '</span>';
+}
+
+function setStat(type, msg) {
+  var e = g('hstatus'); if (!e) return;
+  e.textContent = msg;
+  e.className = 'h-status ' + (type==='ok'?'s-ok':type==='err'?'s-err':'s-wait');
+}
+
+function toast(msg, type) {
+  var e = g('toast'); if (!e) return;
+  g('toastMsg').textContent = msg;
+  e.style.background = type==='r'?'#C0392B':type==='g'?'#1B8A4E':'#8B1A2E';
+  e.classList.add('on');
+  setTimeout(function(){ e.classList.remove('on'); }, 4000);
+}
+
+function ss(k, v) { sessionStorage.setItem(k, v); }
+function gs(k)    { return sessionStorage.getItem(k); }
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 4: FIREBASE — initialise and listen
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function initFirebase() {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    PR = db.ref('payments');
+    SR = db.ref('students');
+    FR = db.ref('feeStructure');
+
+    setStat('wait', '⏳ Connecting...');
+
+    // payments listener
+    PR.on('value', function(snap) {
+      var raw = snap.val();
+      if (!raw) {
+        setStat('wait', '⚠️ Empty');
+        var ub = g('uploadBanner'); if (ub) ub.style.display = 'block';
+        pays = [];
+      } else {
+        pays = Object.values(raw).map(function(p){
+          return Object.assign({}, p, { date: parseDate(p.date) });
+        });
+        setStat('ok', '✅ Live');
+        var ub = g('uploadBanner'); if (ub) ub.style.display = 'none';
+      }
+      renderDash();
+      if (role === 'parent' && child) renderParent(child);
+    }, function(err) {
+      setStat('err', '❌ ' + (err.code||'Error'));
+      toast('Firebase: ' + err.message, 'r');
+    });
+
+    // students listener
+    SR.on('value', function(snap) {
+      stus = snap.val() ? Object.values(snap.val()) : [];
+      renderStudents();
+      updateDatalist();
+      if (role === 'parent' && child) renderParent(child);
+    });
+
+    // fee structure listener
+    FR.on('value', function(snap) {
+      if (snap.val()) fees = snap.val();
+      renderFeeGrid();
+      if (role === 'parent' && child) renderParent(child);
+    });
+
+  } catch(e) {
+    setStat('err', '❌ Init Failed');
+    toast('Firebase init: ' + e.message, 'r');
+  }
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 5: LOGIN
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function switchLoginTab(tab, el) {
+  document.querySelectorAll('.ltab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.lsec').forEach(function(s){ s.classList.remove('active'); });
+  el.classList.add('active');
+  g('lsec-' + tab).classList.add('active');
+}
+
+function showSuggestions() {
+  var q = g('parentNameInput').value.trim().toLowerCase();
+  var box = g('suggestBox');
+  if (!q || q.length < 2) { box.style.display = 'none'; return; }
+
+  var names = {};
+  stus.forEach(function(s){ if (s.name && s.name.toLowerCase().includes(q)) names[s.name] = 1; });
+  pays.forEach(function(p){ if ((p.name||'').toLowerCase().includes(q)) names[p.name] = 1; });
+
+  var matches = Object.keys(names).slice(0, 7);
+  if (!matches.length) { box.style.display = 'none'; return; }
+
+  var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  box.innerHTML = matches.map(function(n) {
+    return '<div class="suggest-item" onclick="selectSuggestion(\'' + n.replace(/'/g,"\\'") + '\')">'
+      + n.replace(re, '<span class="suggest-hl">$1</span>')
+      + '</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+function selectSuggestion(name) {
+  g('parentNameInput').value = name;
+  g('suggestBox').style.display = 'none';
+  g('parentErr').textContent = '';
+}
+
+function parentLogin() {
+  var raw = g('parentNameInput').value.trim();
+  var err = g('parentErr');
+  if (!raw) { err.textContent = "Please enter your child's name"; return; }
+
+  var q = raw.toLowerCase();
+  var found = null;
+
+  // exact match first
+  stus.forEach(function(s){ if (!found && s.name && s.name.toLowerCase() === q) found = s; });
+  if (!found) pays.forEach(function(p){ if (!found && (p.name||'').toLowerCase() === q) found = p; });
+  // partial match fallback
+  if (!found) stus.forEach(function(s){ if (!found && s.name && s.name.toLowerCase().includes(q)) found = s; });
+  if (!found) pays.forEach(function(p){ if (!found && (p.name||'').toLowerCase().includes(q)) found = p; });
+
+  if (!found) {
+    err.textContent = '❌ Name not found. Check spelling or contact the school office.';
+    return;
+  }
+
+  role  = 'parent';
+  child = found.name || raw;
+  ss('hsk_role', 'parent');
+  ss('hsk_child', child);
+  showParentView(child);
+}
+
+function staffLogin() {
+  var u = g('staffUsername').value.trim().toLowerCase();
+  var p = g('staffPassword').value;
+  var err = g('staffErr');
+  if (!u || !p) { err.textContent = 'Please enter username and password'; return; }
+  if (STAFF_USERS[u] && STAFF_USERS[u] === p) {
+    role = 'staff';
+    ss('hsk_role', 'staff');
+    ss('hsk_user', u);
+    showStaffView(u);
+  } else {
+    err.textContent = '❌ Wrong username or password';
+    g('staffPassword').value = '';
+  }
+}
+
+function showParentView(c) {
+  g('loginScreen').style.display  = 'none';
+  g('mainHeader').style.display   = 'flex';
+  g('parentView').style.display   = 'block';
+  g('staffView').style.display    = 'none';
+  g('headerRole').textContent     = 'Parent Portal';
+  g('headerUser').textContent     = '👨‍👩‍👧 ' + c;
+  renderParent(c);
+}
+
+function showStaffView(u) {
+  g('loginScreen').style.display  = 'none';
+  g('mainHeader').style.display   = 'flex';
+  g('staffView').style.display    = 'block';
+  g('parentView').style.display   = 'none';
+  g('headerRole').textContent     = 'Staff Portal';
+  g('headerUser').textContent     = '👔 ' + u;
+  renderDash();
+}
+
+function logout() {
+  sessionStorage.clear();
+  role = null; child = null;
+  g('loginScreen').style.display  = 'flex';
+  g('mainHeader').style.display   = 'none';
+  g('parentView').style.display   = 'none';
+  g('staffView').style.display    = 'none';
+  g('parentNameInput').value      = '';
+  g('parentErr').textContent      = '';
+  g('staffUsername').value        = '';
+  g('staffPassword').value        = '';
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 6: PARENT VIEW
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function renderParent(c) {
+  var nl  = c.toLowerCase();
+  var stu = null;
+  stus.forEach(function(s){ if (s.name && s.name.toLowerCase() === nl) stu = s; });
+
+  // sort payments by date descending
+  var myPays = pays
+    .filter(function(p){ return (p.name||'').toLowerCase() === nl; })
+    .sort(function(a, b){ return new Date(b.date||0) - new Date(a.date||0); });
+
+  g('parentChildName').textContent = c;
+  g('parentChildMeta').textContent = (stu ? stu.class + ' · ' : '') + 'Hill School Koimugul';
+
+  var total = myPays.reduce(function(s,p){ return s + (p.amount||0); }, 0);
+  g('pTotalPaid').textContent = 'KES ' + total.toLocaleString('en-KE');
+  g('pPayCount').textContent  = myPays.length;
+
+  // Term 1 balance
+  var expected = (stu && fees[stu.class]) ? (fees[stu.class]['T1'] || 0) : 0;
+  var termPaid = myPays.filter(function(p){
+    var pt = (p.term||'').toLowerCase();
+    return pt.includes('1') || pt === 't1' || pt === 'term 1' || pt === '';
+  }).reduce(function(s,p){ return s + (p.amount||0); }, 0);
+  var balance = expected - termPaid;
+
+  g('pBalLabel').textContent = 'Term 1 Balance';
+  if (expected === 0) {
+    g('pBalance').textContent = 'N/A';
+    g('pBalance').className   = 'p-card-val';
+    g('pBalSub').textContent  = 'Class not yet assigned';
+  } else if (balance <= 0) {
+    g('pBalance').textContent = '✅ Cleared';
+    g('pBalance').className   = 'p-card-val green';
+    g('pBalSub').textContent  = 'Fully paid — Thank you!';
+  } else {
+    g('pBalance').textContent = 'KES ' + balance.toLocaleString('en-KE');
+    g('pBalance').className   = 'p-card-val red';
+    g('pBalSub').textContent  = 'Outstanding · Expected KES ' + expected.toLocaleString('en-KE');
+  }
+
+  // Payment history — sorted by date
+  g('parentPayments').innerHTML = myPays.length
+    ? myPays.map(function(p){
+        return '<div class="p-payment-row">'
+          + '<div>'
+          +   '<div class="p-pay-date">' + formatDate(p.date) + '</div>'
+          +   '<div class="p-pay-method">' + (p.method||'Payment') + '</div>'
+          + '</div>'
+          + '<div style="text-align:right">'
+          +   '<div class="p-pay-amount">KES ' + (p.amount||0).toLocaleString('en-KE') + '</div>'
+          +   '<div class="p-pay-term">' + (p.term||'') + '</div>'
+          + '</div>'
+          + '</div>';
+      }).join('')
+    : '<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No payment records found yet.</div>';
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 7: UPLOAD SEED DATA
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function doUpload() {
+  toast('No seed data in this version. Use Admin Import to paste your data.', 'r');
+  g('uploadBanner').style.display = 'none';
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 8: DASHBOARD
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function renderDash() {
+  var total = pays.reduce(function(s,p){ return s+(p.amount||0); }, 0);
+  var stuCount = stus.length || new Set(pays.map(function(p){ return (p.name||'').toLowerCase(); })).size;
+  g('s1').textContent = fmt(total);
+  g('s2').textContent = stuCount;
+  g('s3').textContent = pays.length;
+
+  // Arrears estimate
+  var arrears = 0;
+  stus.forEach(function(s){
+    var fe = fees[s.class]; if (!fe) return;
+    var exp = fe['T1'] || 0;
+    var paid = pays.filter(function(p){
+      return p.name.toLowerCase() === s.name.toLowerCase() && (p.term||'').includes('1');
+    }).reduce(function(a,p){ return a+(p.amount||0); }, 0);
+    if (paid < exp) arrears += (exp - paid);
+  });
+  g('s4').textContent = fmt(arrears);
+
+  curPage = 0;
+  renderPage();
+}
+
+function renderPage() {
+  // Sort by payment DATE descending — not upload order
+  var sorted = pays.slice().sort(function(a, b){
+    return new Date(b.date || '1900-01-01') - new Date(a.date || '1900-01-01');
+  });
+
+  var total = sorted.length;
+  var start = curPage * PER_PAGE;
+  var slice = sorted.slice(start, start + PER_PAGE);
+  var from  = total ? start + 1 : 0;
+  var to    = Math.min(start + PER_PAGE, total);
+
+  g('dashTable').innerHTML = slice.length
+    ? slice.map(function(p){
+        var cls = p.class || (stus.find(function(s){ return s.name.toLowerCase()===p.name.toLowerCase(); })||{}).class || '—';
+        return '<tr>'
+          + '<td>' + formatDate(p.date) + '</td>'
+          + '<td><strong>' + p.name + '</strong></td>'
+          + '<td>' + cls + '</td>'
+          + '<td class="amount-cell">' + (p.amount||0).toLocaleString() + '</td>'
+          + '<td>' + badge(p.method) + '</td>'
+          + '</tr>';
+      }).join('')
+    : '<tr><td colspan="5"><div class="no-data"><div class="no-data-icon">📭</div><p>No records yet</p></div></td></tr>';
+
+  g('pagInfo').textContent = total ? from + '–' + to + ' of ' + total + ' records' : '';
+  g('prevBtn').disabled = curPage === 0;
+  g('nextBtn').disabled = to >= total;
+}
+
+function changePage(d) {
+  var maxPage = Math.ceil(pays.length / PER_PAGE) - 1;
+  curPage = Math.max(0, Math.min(maxPage, curPage + d));
+  renderPage();
+  window.scrollTo(0, 200);
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 9: SEARCH
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function doSearch() {
+  var q   = g('searchInput').value.trim().toLowerCase();
+  var rc  = g('resultCard');
+  var cnt = g('searchCount');
+  var tb  = g('searchTable');
+
+  if (!q) {
+    tb.innerHTML = '<tr><td colspan="5"><div class="no-data"><div class="no-data-icon">🔍</div><p>Type a student name to search</p></div></td></tr>';
+    rc.classList.remove('visible'); cnt.textContent = ''; return;
+  }
+
+  var res = pays.filter(function(p){ return (p.name||'').toLowerCase().includes(q); });
+  cnt.textContent = res.length ? res.length + ' record(s) found' : '';
+
+  if (!res.length) {
+    tb.innerHTML = '<tr><td colspan="5"><div class="no-data"><div class="no-data-icon">😕</div><p>No records found for "' + q + '"</p></div></td></tr>';
+    rc.classList.remove('visible'); return;
+  }
+
+  var tot = res.reduce(function(s,p){ return s+(p.amount||0); }, 0);
+  var stu = stus.find(function(s){ return s.name.toLowerCase().includes(q); });
+
+  g('rcName').textContent  = res[0].name.trim();
+  g('rcMeta').textContent  = (stu&&stu.class?stu.class+' · ':'') + res.length + ' payment(s)';
+  g('rcPhone').textContent = stu&&stu.phone ? '📞 '+stu.phone : '';
+  g('rcTotal').textContent = fmt(tot);
+  g('rcBalance').textContent = '';
+  rc.classList.add('visible');
+
+  // Sort search results by date too
+  res.sort(function(a,b){ return new Date(b.date||0)-new Date(a.date||0); });
+
+  tb.innerHTML = res.map(function(p){
+    return '<tr>'
+      + '<td>' + formatDate(p.date) + '</td>'
+      + '<td>' + p.name + '</td>'
+      + '<td class="amount-cell">' + (p.amount||0).toLocaleString() + '</td>'
+      + '<td>' + badge(p.method) + '</td>'
+      + '<td>' + (p.term||'—') + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+function clearSearch() {
+  g('searchInput').value = '';
+  doSearch();
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 10: ANALYTICS
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function renderAnalytics() {
+  var term     = g('analyticsTermSelect').value;
+  var filtered = term === 'all' ? pays : pays.filter(function(p){ return p.term === term; });
+  var total    = pays.reduce(function(s,p){ return s+(p.amount||0); }, 0);
+
+  // Term progress bars
+  var terms  = ['Term 1', 'Term 2', 'Term 3'];
+  var colors = { green: '#1B8A4E', amber: '#E8A020', red: '#C0392B' };
+
+  g('termProgress').innerHTML = terms.map(function(t) {
+    var tk  = t.replace('Term ','T');
+    var col = pays.filter(function(p){ return p.term===t; }).reduce(function(s,p){ return s+(p.amount||0); }, 0);
+    var exp = stus.reduce(function(s,stu){ var fe=fees[stu.class]; return s+(fe?(fe[tk]||0):0); }, 0) || col;
+    var pct = exp > 0 ? Math.min(100, Math.round(col/exp*100)) : 0;
+    var clr = pct>=80?colors.green:pct>=50?colors.amber:colors.red;
+    return '<div class="progress-wrap">'
+      + '<div class="progress-label"><span>' + t + '</span><span style="color:'+clr+'">' + pct + '% — ' + fmt(col) + '</span></div>'
+      + '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:'+clr+'"></div></div>'
+      + '</div>';
+  }).join('');
+
+  // Monthly breakdown
+  var monthly = {};
+  filtered.forEach(function(p){
+    if (!p.date) return;
+    var m = p.date.substring(0,7);
+    monthly[m] = (monthly[m]||0) + (p.amount||0);
+  });
+
+  var mKeys = Object.keys(monthly).sort();
+  var mMax  = mKeys.reduce(function(mx,k){ return Math.max(mx, monthly[k]); }, 1);
+
+  g('monthlyBreakdown').innerHTML = mKeys.length
+    ? mKeys.map(function(m){
+        var pct = Math.round(monthly[m]/mMax*100);
+        return '<div class="progress-wrap">'
+          + '<div class="progress-label"><span>' + m + '</span><span>' + fmt(monthly[m]) + '</span></div>'
+          + '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:var(--maroon)"></div></div>'
+          + '</div>';
+      }).join('')
+    : '<p style="color:var(--muted);font-size:12px">No data for selected period</p>';
+
+  // Method breakdown
+  var mc = {};
+  var methColors = {'Account/Bank':'#8B1A2E','M-Pesa':'#1B8A4E','Cash':'#E8A020','Goods/Maize':'#7B4A0A','Other':'#7A85A0'};
+  filtered.forEach(function(p){
+    var m = (p.method||'').toLowerCase();
+    var k = m.includes('account')||m.includes('bank')?'Account/Bank':m.includes('mpesa')||m.includes('m-pesa')?'M-Pesa':m==='cash'?'Cash':m.includes('maize')||m.includes('goods')?'Goods/Maize':'Other';
+    mc[k] = (mc[k]||0) + (p.amount||0);
+  });
+
+  var mTotal = Object.values(mc).reduce(function(a,b){ return a+b; }, 0) || 1;
+  g('methodBreakdown').innerHTML = Object.entries(mc).sort(function(a,b){ return b[1]-a[1]; }).map(function(e){
+    var pct = Math.round(e[1]/mTotal*100);
+    return '<div class="progress-wrap">'
+      + '<div class="progress-label"><span>' + e[0] + ' (' + pct + '%)</span><span>' + fmt(e[1]) + '</span></div>'
+      + '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:'+(methColors[e[0]]||'#999')+'"></div></div>'
+      + '</div>';
+  }).join('') || '<p style="color:var(--muted);font-size:12px">No data</p>';
+
+  // Class group breakdown
+  var cg = {
+    'Playgroup–PP2': ['Playgroup','PP1','PP2'],
+    'Grade 1–3':     ['Grade 1','Grade 2','Grade 3'],
+    'Grade 4–7':     ['Grade 4','Grade 5','Grade 6','Grade 7']
+  };
+  var cgColors = {'Playgroup–PP2':'#8B1A2E','Grade 1–3':'#6EB3D6','Grade 4–7':'#1B8A4E'};
+  var cgMax = 1;
+  var cgVals = {};
+  Object.entries(cg).forEach(function(e){
+    var v = filtered.filter(function(p){
+      var cls = p.class || (stus.find(function(s){ return s.name.toLowerCase()===p.name.toLowerCase(); })||{}).class||'';
+      return e[1].includes(cls);
+    }).reduce(function(s,p){ return s+(p.amount||0); }, 0);
+    cgVals[e[0]] = v;
+    if (v > cgMax) cgMax = v;
+  });
+
+  g('classBreakdown').innerHTML = Object.entries(cgVals).map(function(e){
+    var pct = Math.round(e[1]/cgMax*100);
+    return '<div class="progress-wrap">'
+      + '<div class="progress-label"><span>' + e[0] + '</span><span>' + fmt(e[1]) + '</span></div>'
+      + '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:'+(cgColors[e[0]]||'#999')+'"></div></div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 11: ARREARS
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function renderArrears() {
+  var term  = g('arrTermSel').value;
+  var cls   = g('arrClassSel').value;
+  var tk    = term.replace('Term ','T');
+
+  var te=0, tc=0, cleared=0, arr=[];
+
+  stus.forEach(function(s){
+    if (cls !== 'all' && s.class !== cls) return;
+    var fe  = fees[s.class] || null;
+    var exp = fe ? (fe[tk]||0) : 0;
+    var paid = pays.filter(function(p){
+      var pn = p.name.toLowerCase() === s.name.toLowerCase();
+      var pt = (p.term||'').trim().toLowerCase();
+      var tm = pt===term.toLowerCase()||pt===tk.toLowerCase()||pt===tk.toLowerCase().replace('t','')||pt===''||!p.term;
+      return pn && tm;
+    }).reduce(function(s,p){ return s+(p.amount||0); }, 0);
+
+    te += exp; tc += paid;
+    var bal = exp - paid;
+    if (bal <= 0) cleared++;
+    else arr.push({ name:s.name, class:s.class, phone:s.phone||'—', exp:exp, paid:paid, bal:bal });
+  });
+
+  arr.sort(function(a,b){ return b.bal - a.bal; });
+  var ta  = Math.max(0, te-tc);
+  var pct = te > 0 ? Math.min(100, Math.round(tc/te*100)) : 0;
+  var clr = pct>=80?'#1B8A4E':pct>=50?'#E8A020':'#C0392B';
+
+  g('arrExp').textContent = fmt(te);
+  g('arrCol').textContent = fmt(tc);
+  g('arrTot').textContent = fmt(ta);
+  g('arrClr').textContent = cleared + ' students';
+
+  g('arrProgress').innerHTML = '<div class="progress-wrap">'
+    + '<div class="progress-label"><span>' + term + ' — ' + pct + '% collected</span><span style="color:'+clr+'">' + fmt(tc) + ' of ' + fmt(te) + '</span></div>'
+    + '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:'+clr+'"></div></div>'
+    + '</div>';
+
+  g('arrearsTable').innerHTML = arr.length
+    ? arr.map(function(a){
+        return '<tr>'
+          + '<td><strong>' + a.name + '</strong></td>'
+          + '<td>' + (a.class||'—') + '</td>'
+          + '<td><a href="tel:'+a.phone+'" style="color:var(--blue)">' + a.phone + '</a></td>'
+          + '<td>' + a.exp.toLocaleString() + '</td>'
+          + '<td class="amount-cell">' + a.paid.toLocaleString() + '</td>'
+          + '<td class="red-cell">' + a.bal.toLocaleString() + '</td>'
+          + '</tr>';
+      }).join('')
+    : (stus.length
+        ? '<tr><td colspan="6"><div class="no-data"><div class="no-data-icon">🎉</div><p>No arrears for ' + term + '!</p></div></td></tr>'
+        : '<tr><td colspan="6"><div class="no-data"><div class="no-data-icon">👨‍🎓</div><p>Import student register first from Admin section</p></div></td></tr>');
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 12: STUDENTS
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function renderStudents() {
+  g('stuTotal').textContent   = stus.length;
+  g('stuClasses').textContent = new Set(stus.map(function(s){ return s.class; }).filter(Boolean)).size;
+
+  var q  = (g('stuSearch').value||'').toLowerCase();
+  var fl = q ? stus.filter(function(s){ return s.name.toLowerCase().includes(q)||s.class.toLowerCase().includes(q); }) : stus;
+
+  g('stuTable').innerHTML = fl.length
+    ? fl.map(function(s, i){
+        var paid = pays.filter(function(p){ return p.name.toLowerCase()===s.name.toLowerCase(); })
+                       .reduce(function(a,p){ return a+(p.amount||0); }, 0);
+        return '<tr>'
+          + '<td>' + (i+1) + '</td>'
+          + '<td><strong>' + s.name + '</strong></td>'
+          + '<td>' + (s.class||'—') + '</td>'
+          + '<td>' + (s.phone||'—') + '</td>'
+          + '<td class="amount-cell">' + paid.toLocaleString() + '</td>'
+          + '</tr>';
+      }).join('')
+    : '<tr><td colspan="5"><div class="no-data"><div class="no-data-icon">👨‍🎓</div><p>No students found</p></div></td></tr>';
+}
+
+function updateDatalist() {
+  var dl = g('studentDatalist'); if (!dl) return;
+  dl.innerHTML = stus.map(function(s){ return '<option value="' + s.name + '">'; }).join('');
+}
+
+function autoFillClass() {
+  var name = g('fName').value.trim();
+  var stu  = stus.find(function(s){ return s.name.toLowerCase() === name.toLowerCase(); });
+  if (stu) {
+    var cls = g('fClass');
+    for (var i=0; i<cls.options.length; i++) {
+      if (cls.options[i].value === stu.class) { cls.selectedIndex = i; break; }
+    }
+  }
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 13: ADD PAYMENT
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function savePayment() {
+  var nm  = ttl(g('fName').value.trim());
+  var amt = parseFloat(g('fAmount').value);
+  if (!nm || !amt) { toast('Fill in student name and amount', 'r'); return; }
+
+  var btn = g('saveBtn');
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+
+  PR.push({
+    date:     g('fDate').value,
+    adm:      '',
+    name:     nm,
+    amount:   amt,
+    method:   g('fMethod').value,
+    class:    g('fClass').value,
+    received: g('fReceived').value.trim(),
+    term:     g('fTerm').value,
+    year:     new Date().getFullYear().toString()
+  }).then(function(){
+    toast('✅ KES ' + amt.toLocaleString() + ' for ' + nm + ' saved!', 'g');
+    g('fName').value = '';
+    g('fAmount').value = '';
+    btn.disabled = false; btn.textContent = '✅ Save to Firebase';
+  }).catch(function(e){
+    toast('Save failed: ' + e.message, 'r');
+    btn.disabled = false; btn.textContent = '✅ Save to Firebase';
+  });
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 14: FEE STRUCTURE
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function renderFeeGrid() {
+  var el = g('feeGrid'); if (!el) return;
+  var groups = [
+    { label: 'Playgroup to PP2',    classes: ['Playgroup','PP1','PP2'] },
+    { label: 'Grade 1 to Grade 3',  classes: ['Grade 1','Grade 2','Grade 3'] },
+    { label: 'Grade 4 to Grade 7',  classes: ['Grade 4','Grade 5','Grade 6','Grade 7'] }
+  ];
+  el.innerHTML = groups.map(function(gr){
+    var c = gr.classes[0];
+    var f = fees[c] || { T1:0, T2:0, T3:0 };
+    return '<div class="fee-card">'
+      + '<h4>' + gr.label + '</h4>'
+      + '<div class="fee-row"><label>T1</label><input class="fee-input" id="fe_'+c+'_T1" type="number" value="'+(f.T1||0)+'"></div>'
+      + '<div class="fee-row"><label>T2</label><input class="fee-input" id="fe_'+c+'_T2" type="number" value="'+(f.T2||0)+'"></div>'
+      + '<div class="fee-row"><label>T3</label><input class="fee-input" id="fe_'+c+'_T3" type="number" value="'+(f.T3||0)+'"></div>'
+      + '<button class="fee-save-btn" onclick="saveFees(\''+gr.classes.join(',')+'\',' + '\''+c+'\')">💾 Save Changes</button>'
+      + '</div>';
+  }).join('');
+}
+
+function saveFees(classStr, base) {
+  var classes = classStr.split(',');
+  var t1 = parseFloat(g('fe_'+base+'_T1').value)||0;
+  var t2 = parseFloat(g('fe_'+base+'_T2').value)||0;
+  var t3 = parseFloat(g('fe_'+base+'_T3').value)||0;
+  var updates = {};
+  classes.forEach(function(c){ updates[c] = { T1:t1, T2:t2, T3:t3 }; });
+  FR.update(updates)
+    .then(function(){ toast('✅ Fee structure saved!', 'g'); })
+    .catch(function(e){ toast('Save failed: '+e.message, 'r'); });
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 15: PROMOTION
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function previewPromo() {
+  if (!stus.length) { toast('Import student register first', 'r'); return; }
+  promoData = stus.map(function(s){
+    return Object.assign({}, s, { newClass: PROMO_MAP[s.class]||s.class, isAlumni: s.class==='Grade 7' });
+  });
+  g('promoTable').innerHTML = promoData.map(function(s, i){
+    return '<tr style="' + (s.isAlumni?'background:#F0FFF4':'') + '">'
+      + '<td><input type="checkbox" id="ck_'+i+'" checked onchange="updatePromoStats()" style="width:15px;height:15px;accent-color:var(--maroon)"></td>'
+      + '<td><strong>' + s.name + '</strong></td>'
+      + '<td>' + (s.class||'—') + '</td>'
+      + '<td style="color:'+(s.isAlumni?'var(--green)':'var(--blue)')+';font-weight:600">' + s.newClass + (s.isAlumni?' 🎓':'') + '</td>'
+      + '</tr>';
+  }).join('');
+  g('promoStats').style.display    = 'grid';
+  g('promoTableWrap').style.display = 'block';
+  g('confirmPromoBtn').style.display = 'inline-flex';
+  g('cancelPromoBtn').style.display  = 'inline-flex';
+  updatePromoStats();
+}
+
+function updatePromoStats() {
+  var p=0, r=0, a=0;
+  promoData.forEach(function(s,i){
+    var ck = g('ck_'+i);
+    if (ck && ck.checked) { if (s.isAlumni) a++; else p++; } else r++;
+  });
+  g('promoCount').textContent  = p;
+  g('repeatCount').textContent = r;
+  g('alumniCount').textContent = a;
+}
+
+function confirmPromo() {
+  var toP = promoData.filter(function(_,i){ var ck=g('ck_'+i); return ck&&ck.checked; });
+  if (!toP.length) { toast('No students selected', 'r'); return; }
+  if (!confirm('Promote ' + toP.length + ' students to their new classes?')) return;
+
+  var btn = g('confirmPromoBtn');
+  btn.disabled = true; btn.textContent = '⏳ Promoting...';
+
+  var obj = {};
+  stus.forEach(function(s, i){
+    var pi = promoData.findIndex(function(p){ return p.name===s.name; });
+    var ck = pi >= 0 ? g('ck_'+pi) : null;
+    obj['stu_'+i] = {
+      name:  s.name,
+      phone: s.phone||'',
+      class: (ck&&ck.checked) ? (PROMO_MAP[s.class]||s.class) : s.class
+    };
+  });
+
+  SR.set(obj).then(function(){
+    g('promoResult').style.display = 'block';
+    g('promoResult').innerHTML = '<div style="background:#E8F7EE;border:1px solid #86C999;border-radius:12px;padding:16px">'
+      + '<div style="font-family:Playfair Display,serif;font-size:18px;color:var(--green);margin-bottom:7px">🎉 Promotion Complete!</div>'
+      + '<p style="font-size:13px;color:#166534">'
+      + toP.filter(function(s){return!s.isAlumni;}).length + ' students promoted · '
+      + toP.filter(function(s){return s.isAlumni;}).length + ' graduated to Alumni · '
+      + (promoData.length-toP.length) + ' repeating'
+      + '</p></div>';
+    g('confirmPromoBtn').style.display = 'none';
+    g('cancelPromoBtn').style.display  = 'none';
+    toast('✅ Promotion complete!', 'g');
+    btn.disabled = false;
+  }).catch(function(e){
+    toast('Failed: '+e.message, 'r');
+    btn.disabled = false; btn.textContent = '✅ Confirm & Promote';
+  });
+}
+
+function cancelPromo() {
+  g('promoTableWrap').style.display  = 'none';
+  g('promoStats').style.display      = 'none';
+  g('confirmPromoBtn').style.display = 'none';
+  g('cancelPromoBtn').style.display  = 'none';
+  promoData = [];
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 16: SUMMARY
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function renderSummary() {
+  if (!pays.length) return;
+  var total = pays.reduce(function(s,p){ return s+(p.amount||0); }, 0);
+
+  // Methods
+  var mc = {};
+  var methColors = {'Account/Bank':'#8B1A2E','M-Pesa':'#1B8A4E','Cash':'#E8A020','Goods/Maize':'#7B4A0A','Other':'#7A85A0'};
+  pays.forEach(function(p){
+    var m = (p.method||'').toLowerCase();
+    var k = m.includes('account')||m.includes('bank')?'Account/Bank':m.includes('mpesa')||m.includes('m-pesa')?'M-Pesa':m==='cash'?'Cash':m.includes('maize')||m.includes('goods')?'Goods/Maize':'Other';
+    mc[k] = (mc[k]||0) + (p.amount||0);
+  });
+  g('summaryMethods').innerHTML = Object.entries(mc).sort(function(a,b){return b[1]-a[1];}).map(function(e){
+    var pct = total ? Math.round(e[1]/total*100) : 0;
+    return '<div class="summary-row">'
+      + '<div><div class="summary-label">' + e[0] + ' (' + pct + '%)</div>'
+      + '<div class="method-bar"><div class="method-fill" style="width:'+pct+'%;background:'+(methColors[e[0]]||'#999')+'"></div></div></div>'
+      + '<div class="summary-value">' + fmt(e[1]) + '</div>'
+      + '</div>';
+  }).join('');
+
+  // Top payers
+  var bs = {};
+  pays.forEach(function(p){ var n=(p.name||'').trim(); bs[n]=(bs[n]||0)+(p.amount||0); });
+  g('summaryTopPayers').innerHTML = Object.entries(bs).sort(function(a,b){return b[1]-a[1];}).slice(0,10)
+    .map(function(e,i){
+      return '<div class="summary-row"><span class="summary-label">' + (i+1) + '. ' + e[0] + '</span><span class="summary-value">' + fmt(e[1]) + '</span></div>';
+    }).join('');
+
+  // Monthly
+  var mo = {};
+  pays.forEach(function(p){ if(!p.date)return; var m=p.date.substring(0,7); mo[m]=(mo[m]||0)+(p.amount||0); });
+  g('summaryMonthly').innerHTML = Object.entries(mo).sort(function(a,b){return a[0].localeCompare(b[0]);})
+    .map(function(e){
+      return '<div class="summary-row"><span class="summary-label">' + e[0] + '</span><span class="summary-value">' + fmt(e[1]) + '</span></div>';
+    }).join('') || '<p style="color:var(--muted);font-size:12px">No data</p>';
+
+  // Quick stats
+  var am  = pays.map(function(p){ return p.amount||0; });
+  var avg = am.length ? Math.round(am.reduce(function(a,b){return a+b;},0)/am.length) : 0;
+  g('summaryStats').innerHTML = [
+    ['Grand Total',        fmt(total)],
+    ['Average Payment',    fmt(avg)],
+    ['Largest Payment',    fmt(Math.max.apply(null,am))],
+    ['Total Transactions', pays.length],
+    ['Unique Students',    new Set(pays.map(function(p){return(p.name||'').toLowerCase();})).size]
+  ].map(function(r){
+    return '<div class="summary-row"><span class="summary-label">' + r[0] + '</span><span class="summary-value">' + r[1] + '</span></div>';
+  }).join('');
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 17: ADMIN IMPORT
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function showAdmin() {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  g('adminPage').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function closeAdmin() {
+  g('adminPage').style.display = 'none';
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  g('page-dashboard').classList.add('active');
+  renderDash();
+}
+
+function importPayments() {
+  var raw = g('pastePayments').value.trim();
+  if (!raw) { toast('Paste data first', 'r'); return; }
+
+  var colMap = {};
+  for (var i=0; i<=5; i++) { var el=g('c'+i); if(el) colMap[i]=el.value; }
+
+  var lines = raw.split('\n').filter(function(l){ return l.trim(); });
+  var first = lines[0].toLowerCase();
+  var skip  = (first.includes('date')||first.includes('name')||first.includes('amount')) ? 1 : 0;
+
+  var records = [];
+  lines.slice(skip).forEach(function(line){
+    var cols = line.split('\t');
+    var r = { date:'',adm:'',name:'',amount:0,method:'Account',received:'Bursar',term:'',year:'2026',class:'' };
+    cols.forEach(function(v,i){
+      v = v.trim(); var f = colMap[i];
+      if (f==='DATE')     r.date     = parseDate(v);
+      if (f==='ADM')      r.adm      = v;
+      if (f==='NAME')     r.name     = ttl(v);
+      if (f==='AMOUNT')   r.amount   = parseFloat(v.replace(/[^0-9.]/g,''))||0;
+      if (f==='METHOD')   r.method   = v||'Account';
+      if (f==='RECEIVED') r.received = v||'Bursar';
+    });
+    if (r.name && r.amount > 0) records.push(r);
+  });
+
+  if (!records.length) { toast('No valid rows found — check column order', 'r'); return; }
+
+  var msg = g('importPayMsg');
+  msg.textContent = 'Uploading ' + records.length + ' records...';
+  msg.style.color = 'var(--maroon)';
+  var btn = g('importPayBtn');
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+
+  var i = 0;
+  function nextBatch() {
+    if (i >= records.length) {
+      msg.textContent = '✅ ' + records.length + ' records saved!';
+      msg.style.color = '#1B8A4E';
+      toast('✅ ' + records.length + ' payments imported!', 'g');
+      g('pastePayments').value = '';
+      btn.disabled = false; btn.textContent = '⬆️ Import Payments';
+      return;
+    }
+    var batch = records.slice(i, i+20);
+    Promise.all(batch.map(function(p){ return PR.push(p); }))
+      .then(function(){ i += 20; nextBatch(); })
+      .catch(function(e){
+        msg.textContent = '❌ Failed: ' + e.message;
+        msg.style.color = '#C0392B';
+        btn.disabled = false; btn.textContent = '⬆️ Import Payments';
+      });
+  }
+  nextBatch();
+}
+
+function importStudents() {
+  var raw = g('pasteStudents').value.trim();
+  if (!raw) { toast('Paste student data first', 'r'); return; }
+
+  var colMap = {};
+  for (var i=0; i<=2; i++) { var el=g('sc'+i); if(el) colMap[i]=el.value; }
+
+  var lines = raw.split('\n').filter(function(l){ return l.trim(); });
+  var first = lines[0].toLowerCase();
+  var skip  = (first.includes('name')||first.includes('class')) ? 1 : 0;
+
+  var records = [];
+  lines.slice(skip).forEach(function(line){
+    var cols = line.split('\t');
+    var r = { name:'', class:'', phone:'' };
+    cols.forEach(function(v,i){
+      v = v.trim(); var f = colMap[i];
+      if (f==='NAME')  r.name  = ttl(v);
+      if (f==='CLASS') r.class = v;
+      if (f==='PHONE') r.phone = v;
+    });
+    if (r.name) records.push(r);
+  });
+
+  if (!records.length) { toast('No valid student rows found', 'r'); return; }
+
+  var msg = g('importStuMsg');
+  msg.textContent = 'Saving ' + records.length + ' students...';
+  msg.style.color = 'var(--maroon)';
+  var btn = g('importStuBtn');
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+
+  var obj = {};
+  records.forEach(function(s, i){ obj['stu_'+i] = { name:s.name, class:s.class, phone:s.phone }; });
+
+  SR.set(obj).then(function(){
+    msg.textContent = '✅ ' + records.length + ' students saved!';
+    msg.style.color = '#1B8A4E';
+    toast('✅ ' + records.length + ' students imported!', 'g');
+    g('pasteStudents').value = '';
+    btn.disabled = false; btn.textContent = '⬆️ Import Students';
+  }).catch(function(e){
+    msg.textContent = '❌ Failed: ' + e.message;
+    msg.style.color = '#C0392B';
+    btn.disabled = false; btn.textContent = '⬆️ Import Students';
+  });
+}
+
+function normalizeNames() {
+  if (!confirm('Normalize all names to Title Case across all records?')) return;
+  var btn = g('normalizeBtn'), msg = g('normalizeMsg');
+  btn.disabled = true; btn.textContent = '⏳ Running...';
+  var pFixed=0, sFixed=0;
+
+  PR.once('value').then(function(snap){
+    var raw = snap.val(); var updates = {};
+    if (raw) Object.entries(raw).forEach(function(e){
+      var n = ttl(e[1].name||'');
+      if (n !== e[1].name) { updates['payments/'+e[0]+'/name']=n; pFixed++; }
+    });
+    return db.ref().update(updates);
+  }).then(function(){
+    return SR.once('value');
+  }).then(function(snap){
+    var raw = snap.val(); var updates = {};
+    if (raw) Object.entries(raw).forEach(function(e){
+      var n = ttl(e[1].name||'');
+      if (n !== e[1].name) { updates['students/'+e[0]+'/name']=n; sFixed++; }
+    });
+    return db.ref().update(updates);
+  }).then(function(){
+    msg.textContent = '✅ Fixed ' + pFixed + ' payments, ' + sFixed + ' students';
+    msg.style.color = '#1B8A4E';
+    toast('✅ Name cleanup complete!', 'g');
+    btn.disabled = false; btn.textContent = '🔤 Run Cleanup';
+  }).catch(function(e){
+    msg.textContent = '❌ ' + e.message;
+    msg.style.color = '#C0392B';
+    btn.disabled = false; btn.textContent = '🔤 Run Cleanup';
+  });
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 18: TAB NAVIGATION
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+function switchTab(tabName, el) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+
+  var tabEl = (el.closest ? el.closest('.tab')||el : el);
+  tabEl.classList.add('active');
+  g('page-' + tabName).classList.add('active');
+  g('adminPage').style.display = 'none';
+
+  switch(tabName) {
+    case 'dashboard': renderDash();      break;
+    case 'summary':   renderSummary();   break;
+    case 'analytics': renderAnalytics(); break;
+    case 'arrears':   renderArrears();   break;
+    case 'students':  renderStudents();  break;
+    case 'fees':      renderFeeGrid();   break;
+    case 'promote':
+      promoData = [];
+      g('promoTableWrap').style.display  = 'none';
+      g('promoStats').style.display      = 'none';
+      g('confirmPromoBtn').style.display = 'none';
+      g('cancelPromoBtn').style.display  = 'none';
+      g('promoResult').style.display     = 'none';
+      break;
+  }
+}
+
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+// SECTION 19: START
+// ── ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+
+// Close suggestions on outside click
+document.addEventListener('click', function(e){
+  if (!e.target.closest('#parentNameInput') && !e.target.closest('#suggestBox')) {
+    var box = g('suggestBox'); if (box) box.style.display = 'none';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Set today's date in add form
+  g('fDate').value = new Date().toISOString().split('T')[0];
+
+  // Restore session
+  var savedRole = sessionStorage.getItem('hsk_role');
+  if (savedRole === 'parent') {
+    var savedChild = sessionStorage.getItem('hsk_child');
+    if (savedChild) { role='parent'; child=savedChild; showParentView(savedChild); }
+  } else if (savedRole === 'staff') {
+    var savedUser = sessionStorage.getItem('hsk_user');
+    if (savedUser) { role='staff'; showStaffView(savedUser); }
+  }
+
+  // Initialise Firebase — this is the only connection point
+  initFirebase();
+  renderFeeGrid();
+});
+</script>
+</body>
+</html>
